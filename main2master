@@ -1,0 +1,29 @@
+#!/bin/bash
+
+NAME=$1
+TOKEN=$2
+
+set -e 
+set -u
+
+## Restoring 'master' from 'main'.
+TMPDIR=$(mktemp -d -t ci-XXXXXXXXXX)
+git clone https://${TOKEN}:x-oauth-basic@github.com/${NAME} ${TMPDIR}
+
+cd ${TMPDIR}
+git checkout main
+git branch master
+git push origin master
+
+cd -
+rm -rf ${TMPDIR}
+
+# Unfortunately, git push origin :main doesn't seem to work on default
+# branches, probably because of some hook on GitHub's side. Well, fuck you.
+# We'll use the API instead:
+
+curl \
+  -X DELETE \
+  -H "Accept: application/vnd.github.v3+json" \
+  -H "Authorization: token ${TOKEN}" \
+  https://api.github.com/repos/${NAME}/git/refs/heads/main

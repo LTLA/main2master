@@ -12,8 +12,8 @@ git clone https://${TOKEN}:x-oauth-basic@github.com/${NAME} ${TMPDIR}
 
 cd ${TMPDIR}
 git checkout main
-git branch master
-git push origin master
+git branch -m --force main master
+git push --force origin master
 
 cd -
 rm -rf ${TMPDIR}
